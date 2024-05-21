@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ProductHasBeenDeleted;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -60,6 +61,7 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        //
+        // return $product;
+        event(new ProductHasBeenDeleted($product));
     }
 }

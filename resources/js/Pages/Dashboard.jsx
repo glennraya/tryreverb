@@ -29,6 +29,11 @@ export default function Dashboard({ auth, products }) {
         }
     }
 
+    // Delete product
+    const deleteProduct = productId => {
+        router.delete('products/' + productId)
+    }
+
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -96,6 +101,11 @@ export default function Dashboard({ auth, products }) {
                                                     className="text-danger"
                                                     color="danger"
                                                     description="No longer needed."
+                                                    onClick={() =>
+                                                        deleteProduct(
+                                                            product.id
+                                                        )
+                                                    }
                                                 >
                                                     Delete
                                                 </DropdownItem>

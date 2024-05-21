@@ -1,10 +1,11 @@
 <?php
 
-use Inertia\Inertia;
-use App\Models\Product;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Foundation\Application;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Models\Product;
+use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -17,8 +18,11 @@ Route::get('/', function () {
 
 Route::get('/dashboard', function () {
     $products = Product::simplePaginate(10);
+
     return Inertia::render('Dashboard', ['products' => $products]);
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::resource('products', ProductController::class);
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
