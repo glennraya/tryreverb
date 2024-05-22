@@ -11,56 +11,30 @@ export default function Authenticated({ user, header, children }) {
         useState(false)
 
     const [notifications, setNotifications] = useState([])
-
-    const [product, setProduct] = useState('')
     const [showAlert, setShowAlert] = useState(false)
     const [eventCallback, setEventCallback] = useState({})
 
-    const [timeoutId, setTimeoutId] = useState(null)
-
     useEffect(() => {
-        // We are going to listen to the ProductHasBeenDeleted event here...
         const channel = Echo.private(`delete-product-requested.${user.id}`)
         channel.listen('DeleteProductRequested', event => {
             // Here you can respond to the event, like changing the UI or something...
             console.log(event)
-            setProduct(event.product.name)
             setEventCallback(event)
+            setNotifications(prevArray => [...prevArray, event])
             setShowAlert(true)
-
-            /// Clear any existing timeout
-            if (timeoutId) {
-                clearTimeout(timeoutId)
-            }
-
-            // Start a new timeout
-            const newTimeoutId = setTimeout(() => {
-                setShowAlert(false)
-            }, 5000)
-
-            setTimeoutId(newTimeoutId)
         })
 
         return () => {
             channel.leave(`delete-product-requested.${user.id}`)
-            if (timeoutId) {
-                clearTimeout(timeoutId)
-            }
         }
     }, [])
 
-    const handleMouseEnter = () => {
-        if (timeoutId) {
-            clearTimeout(timeoutId)
-        }
-    }
-
-    const handleMouseLeave = () => {
-        const newTimeoutId = setTimeout(() => {
-            setShowAlert(false)
-        }, 5000)
-
-        setTimeoutId(newTimeoutId)
+    const handleCleanUpNotif = product => {
+        // Remove the notif from the array.
+        console.log(product)
+        setNotifications(prevItems =>
+            prevItems.filter(item => item.product.id !== product.id)
+        )
     }
 
     return (
@@ -223,13 +197,19 @@ export default function Authenticated({ user, header, children }) {
                 </header>
             )}
 
-            {showAlert && eventCallback.user.id === user.id && (
-                <CardNotification
-                    onMouseEnter={handleMouseEnter}
-                    onMouseLeave={handleMouseLeave}
-                    product={product}
-                    close={() => setShowAlert(false)}
-                />
+            {showAlert && eventCallback?.user?.id === user.id && (
+                <ul className="fixed right-6 top-6 z-10 flex flex-col gap-2">
+                    {notifications.map((notif, index) => (
+                        <li key={index}>
+                            <CardNotification
+                                notifIndex={index}
+                                product={notif.product}
+                                close={true}
+                                cleanUpNotif={handleCleanUpNotif}
+                            />
+                        </li>
+                    ))}
+                </ul>
             )}
 
             <main>{children}</main>
