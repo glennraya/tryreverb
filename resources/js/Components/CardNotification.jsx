@@ -1,11 +1,13 @@
 import { Button, Card, CardHeader, CardBody } from '@nextui-org/react'
 
-const CardNotification = ({ product, close }) => {
+const CardNotification = ({ product, close, onMouseEnter, onMouseLeave }) => {
     return (
         <>
             <Card
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
                 shadow="lg"
-                className="absolute right-6 top-6 z-10 w-[430px] border border-cyan-200 px-2"
+                className="fixed right-6 top-6 z-10 w-[430px] border border-cyan-200 px-2"
             >
                 <CardHeader className="justify-between">
                     <div className="flex gap-5">

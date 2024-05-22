@@ -1,13 +1,67 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import ApplicationLogo from '@/Components/ApplicationLogo'
 import Dropdown from '@/Components/Dropdown'
 import NavLink from '@/Components/NavLink'
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink'
 import { Link } from '@inertiajs/react'
+import CardNotification from '@/Components/CardNotification'
 
 export default function Authenticated({ user, header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false)
+
+    const [notifications, setNotifications] = useState([])
+
+    const [product, setProduct] = useState('')
+    const [showAlert, setShowAlert] = useState(false)
+    const [eventCallback, setEventCallback] = useState({})
+
+    const [timeoutId, setTimeoutId] = useState(null)
+
+    useEffect(() => {
+        // We are going to listen to the ProductHasBeenDeleted event here...
+        const channel = Echo.private(`delete-product-requested.${user.id}`)
+        channel.listen('DeleteProductRequested', event => {
+            // Here you can respond to the event, like changing the UI or something...
+            console.log(event)
+            setProduct(event.product.name)
+            setEventCallback(event)
+            setShowAlert(true)
+
+            /// Clear any existing timeout
+            if (timeoutId) {
+                clearTimeout(timeoutId)
+            }
+
+            // Start a new timeout
+            const newTimeoutId = setTimeout(() => {
+                setShowAlert(false)
+            }, 5000)
+
+            setTimeoutId(newTimeoutId)
+        })
+
+        return () => {
+            channel.leave(`delete-product-requested.${user.id}`)
+            if (timeoutId) {
+                clearTimeout(timeoutId)
+            }
+        }
+    }, [])
+
+    const handleMouseEnter = () => {
+        if (timeoutId) {
+            clearTimeout(timeoutId)
+        }
+    }
+
+    const handleMouseLeave = () => {
+        const newTimeoutId = setTimeout(() => {
+            setShowAlert(false)
+        }, 5000)
+
+        setTimeoutId(newTimeoutId)
+    }
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -167,6 +221,15 @@ export default function Authenticated({ user, header, children }) {
                         {header}
                     </div>
                 </header>
+            )}
+
+            {showAlert && eventCallback.user.id === user.id && (
+                <CardNotification
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
+                    product={product}
+                    close={() => setShowAlert(false)}
+                />
             )}
 
             <main>{children}</main>
