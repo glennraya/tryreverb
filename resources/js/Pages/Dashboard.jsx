@@ -1,3 +1,4 @@
+import CardNotification from '@/Components/CardNotification'
 import { VerticalDotsIcon } from '@/Components/VerticalDotsIcon'
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout'
 import { Head, router } from '@inertiajs/react'
@@ -10,17 +11,32 @@ import {
     TableRow,
     TableCell,
     Dropdown,
-    Link,
     DropdownTrigger,
     DropdownMenu,
     DropdownItem,
-    Pagination,
     Chip
 } from '@nextui-org/react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function Dashboard({ auth, products }) {
     const [items, setItems] = useState(products)
+    const [showAlert, setShowAlert] = useState(false)
+    const [product, setProduct] = useState('')
+    const [eventCallback, setEventCallback] = useState({})
+
+    useEffect(() => {
+        // We are going to listen to the ProductHasBeenDeleted event here...
+        Echo.private(`delete-product-requested.${auth.user.id}`).listen(
+            'DeleteProductRequested',
+            event => {
+                // Here you can respond to the event, like changing the UI or something...
+                console.log(event)
+                setProduct(event.product.name)
+                setEventCallback(event)
+                setShowAlert(true)
+            }
+        )
+    }, [])
 
     // Handle the simple pagination
     const handlePageChange = url => {
@@ -38,12 +54,19 @@ export default function Dashboard({ auth, products }) {
         <AuthenticatedLayout
             user={auth.user}
             header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Dashboard
+                <h2 className="text-lg font-black uppercase leading-tight text-gray-800">
+                    Product List
                 </h2>
             }
         >
             <Head title="Dashboard" />
+
+            {showAlert && eventCallback.user.id === auth.user.id && (
+                <CardNotification
+                    product={product}
+                    close={() => setShowAlert(false)}
+                />
+            )}
 
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
@@ -83,7 +106,7 @@ export default function Dashboard({ auth, products }) {
                                                     isIconOnly
                                                     variant="light"
                                                 >
-                                                    <VerticalDotsIcon />
+                                                    <VerticalDotsIcon className="text-gray-400" />
                                                 </Button>
                                             </DropdownTrigger>
                                             <DropdownMenu
@@ -92,7 +115,7 @@ export default function Dashboard({ auth, products }) {
                                             >
                                                 <DropdownItem
                                                     key="edit"
-                                                    description="Update the details"
+                                                    description="Update the details."
                                                 >
                                                     Edit
                                                 </DropdownItem>

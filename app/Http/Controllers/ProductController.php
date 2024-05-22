@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\ProductHasBeenDeleted;
+use App\Models\User;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Events\DeleteProductRequested;
 
 class ProductController extends Controller
 {
@@ -61,7 +63,8 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        // return $product;
-        event(new ProductHasBeenDeleted($product));
+        // Handle the product deletion logic...
+        $admin = User::where('role', 'admin')->get();
+        event(new DeleteProductRequested($product, Auth::user(), $admin));
     }
 }
