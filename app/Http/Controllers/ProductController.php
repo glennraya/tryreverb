@@ -64,7 +64,7 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         // Handle the product deletion logic...
-        $admin = User::where('role', 'admin')->get();
-        event(new DeleteProductRequested($product, Auth::user(), $admin));
+        $admin = User::where('role', 'admin')->first();
+        broadcast(new DeleteProductRequested($product, Auth::user(), $admin));
     }
 }

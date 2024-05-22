@@ -12,25 +12,24 @@ export default function Authenticated({ user, header, children }) {
 
     const [notifications, setNotifications] = useState([])
     const [showAlert, setShowAlert] = useState(false)
-    const [eventCallback, setEventCallback] = useState({})
+    const [notifReceiver, setNotifReceiver] = useState(null)
 
+    //TODO: Create a new channel for 'admins' to received the delete product request.
     useEffect(() => {
-        const channel = Echo.private(`delete-product-requested.${user.id}`)
+        const channel = Echo.private(`App.Models.User.${user.id}`)
         channel.listen('DeleteProductRequested', event => {
             // Here you can respond to the event, like changing the UI or something...
-            console.log(event)
-            setEventCallback(event)
+            setNotifReceiver(event.receiver)
             setNotifications(prevArray => [...prevArray, event])
             setShowAlert(true)
         })
 
         return () => {
-            channel.leave(`delete-product-requested.${user.id}`)
+            channel.leave(`App.Models.User.${user.id}`)
         }
     }, [])
 
     const handleCloseNotif = product => {
-        // Remove the notif from the array.
         setNotifications(prevItems =>
             prevItems.filter(item => item.product.id !== product.id)
         )

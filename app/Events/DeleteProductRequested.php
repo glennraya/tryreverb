@@ -29,9 +29,8 @@ class DeleteProductRequested implements ShouldBroadcast
      */
     public function broadcastOn(): array
     {
-        logger($this->receiver);
         return [
-            new PrivateChannel("delete-product-requested.{$this->user->id}"),
+            new PrivateChannel("App.Models.User.{$this->user->id}"),
         ];
     }
 }
