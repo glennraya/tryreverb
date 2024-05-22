@@ -29,9 +29,8 @@ export default function Authenticated({ user, header, children }) {
         }
     }, [])
 
-    const handleCleanUpNotif = product => {
+    const handleCloseNotif = product => {
         // Remove the notif from the array.
-        console.log(product)
         setNotifications(prevItems =>
             prevItems.filter(item => item.product.id !== product.id)
         )
@@ -197,15 +196,14 @@ export default function Authenticated({ user, header, children }) {
                 </header>
             )}
 
-            {showAlert && eventCallback?.user?.id === user.id && (
+            {/* {showAlert && eventCallback?.user?.id === user.id && ( */}
+            {notifications.length > 0 && (
                 <ul className="fixed right-6 top-6 z-10 flex flex-col gap-2">
                     {notifications.map((notif, index) => (
                         <li key={index}>
                             <CardNotification
-                                notifIndex={index}
                                 product={notif.product}
-                                close={true}
-                                cleanUpNotif={handleCleanUpNotif}
+                                closeNotif={handleCloseNotif}
                             />
                         </li>
                     ))}
