@@ -7,6 +7,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Events\DeleteProductRequested;
+use App\Events\ProductDeletionApproval;
 
 class ProductController extends Controller
 {
@@ -66,5 +67,7 @@ class ProductController extends Controller
         // Handle the product deletion logic...
         $admin = User::where('role', 'admin')->first();
         broadcast(new DeleteProductRequested($product, Auth::user(), $admin));
+
+        broadcast(new ProductDeletionApproval($product, $admin, Auth::user()));
     }
 }

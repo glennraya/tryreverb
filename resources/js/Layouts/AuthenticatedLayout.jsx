@@ -14,7 +14,6 @@ export default function Authenticated({ user, header, children }) {
     const [showAlert, setShowAlert] = useState(false)
     const [notifReceiver, setNotifReceiver] = useState(null)
 
-    //TODO: Create a new channel for 'admins' to received the delete product request.
     useEffect(() => {
         const channel = Echo.private(`App.Models.User.${user.id}`)
         channel.listen('DeleteProductRequested', event => {
@@ -24,8 +23,14 @@ export default function Authenticated({ user, header, children }) {
             setShowAlert(true)
         })
 
+        const adminChannel = Echo.private(`admin`)
+        adminChannel.listen('ProductDeletionApproval', event => {
+            console.log(event)
+        })
+
         return () => {
             channel.leave(`App.Models.User.${user.id}`)
+            adminChannel.leave(`admin`)
         }
     }, [])
 
@@ -195,7 +200,6 @@ export default function Authenticated({ user, header, children }) {
                 </header>
             )}
 
-            {/* {showAlert && eventCallback?.user?.id === user.id && ( */}
             {notifications.length > 0 && (
                 <ul className="fixed right-6 top-6 z-10 flex flex-col gap-2">
                     {notifications.map((notif, index) => (

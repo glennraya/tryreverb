@@ -14,12 +14,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $admin = User::factory()
-            ->state([
-               'role' => 'admin'
-            ])
-            ->has(Product::factory(20))
-            ->create();
+        // $admin = User::factory()
+        //     ->state([
+        //        'role' => 'admin'
+        //     ])
+        //     ->has(Product::factory(20))
+        //     ->create();
 
         $staff = User::factory()
             ->state([
